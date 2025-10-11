@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -109,7 +110,7 @@ int InsertPoints::insertPoints()
     }
   }
 
-  qSort(edges);
+  std::sort(edges.begin(), edges.end());
 
   //counter
   foreach (edge_t E, edges) {

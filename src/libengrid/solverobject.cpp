@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -34,9 +35,9 @@ SolverObject::SolverObject()
 
 int SolverObject::deleteBetween(int i, QString str1, QString str2)
 {
-  int i1 = m_Buffer.indexOf(str1, i);
+  int i1 = m_Buffer.indexOf(str1.toUtf8(), i);
   if (i1 != -1) {
-    int i2 = m_Buffer.indexOf(str2, i1);
+    int i2 = m_Buffer.indexOf(str2.toUtf8(), i1);
     if (i2 != -1) {
       m_Buffer = m_Buffer.remove(i1, i2 - i1 + str2.size());
       return i2-i1;
@@ -76,7 +77,8 @@ void SolverObject::readFile(QString file_name)
     m_Buffer.reserve(file.size());
     while(!f.atEnd())
     {
-      m_Buffer += f.readLine() + "\n";
+      m_Buffer.append(f.readLine().toUtf8());
+      m_Buffer.append("\n");
     }
     stripBuffer();
   }

@@ -20,12 +20,24 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.16)
+
+# Hint for custom Qt6 location
+set(QT_DIR "/opt/Qt/6.9.1/gcc_64")
+list(APPEND CMAKE_PREFIX_PATH ${QT_DIR})
 
 # limit configuration types (must be done before project() statement)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
 
 project(ENGRID)
+
+# --- Qt6 Configuration ---
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# ---
 
 set(CMAKE_VERBOSE_MAKEFILE no)
 
@@ -42,15 +54,15 @@ exec_program(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ARGS "describe"
     OUTPUT_VARIABLE GIT_SHA1)
-string(REGEX MATCH "-g.*$" GIT_SHA1 ${GIT_SHA1})
-string(REGEX REPLACE "[-g]" "" GIT_SHA1 ${GIT_SHA1} )
+string(REGEX MATCH "-g.*$" GIT_SHA1 "${GIT_SHA1}")
+string(REGEX REPLACE "[-g]" "" GIT_SHA1 "${GIT_SHA1}" )
 add_definitions( -DGIT_SHA1="${GIT_SHA1}" )
 
-exec_program(
-    "git"
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ARGS "symbolic-ref --short HEAD"
-    OUTPUT_VARIABLE GIT_BRANCH)
+execute_process(
+    COMMAND git symbolic-ref --short HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_BRANCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions( -DGIT_BRANCH="${GIT_BRANCH}" )
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -58,53 +70,43 @@ if(NOT CMAKE_BUILD_TYPE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-if(WIN32)
-  FIND_PACKAGE(VTK REQUIRED NO_MODULE PATHS $ENV{HOME}/local $ENV{HOME}/local_new/lib/VTK HINTS ENV LD_LIBRARY_PATH)
-else(WIN32)
-  FIND_PACKAGE(VTK COMPONENTS
-    RenderingCore
-    ChartsCore
-    CommonExecutionModel
-    CommonTransforms
-    CommonColor
-    FiltersCore
-    FiltersGeneral
-    FiltersGeometry
-    FiltersSources
-    IOCore
-    IOGeometry
-    IOLegacy
-    IOPLY
-    IOXML
-    vtkGUISupportQt
-  REQUIRED NO_MODULE)
-endif(WIN32)
+# --- VTK Configuration ---
+# Set VTK_DIR to point directly to the custom VTK build configuration
+set(VTK_DIR "${CMAKE_SOURCE_DIR}/../3rdparty/vtk-9.5-qt6/lib/cmake/vtk-9.5")
 
-if("${VTK_VERSION}" VERSION_LESS 6.0)
-  message("The VTK version installed on the current system is too old. EnGrid requires VTK 6.0 or higher.")
+find_package(VTK COMPONENTS
+  RenderingCore
+  ChartsCore
+  CommonExecutionModel
+  CommonTransforms
+  CommonColor
+  FiltersCore
+  FiltersGeneral
+  FiltersGeometry
+  FiltersSources
+  IOCore
+  IOGeometry
+  IOLegacy
+  IOPLY
+  IOXML
+  GUISupportQt
+  REQUIRED)
+
+if("${VTK_VERSION}" VERSION_LESS 9.5)
+  message(FATAL_ERROR "The VTK version is too old. EnGrid requires VTK 9.5 or higher for Qt6 support.")
 endif()
-
-#if("${VTK_VERSION}" VERSION_LESS 6.1)
+# ---
 
 if(NOT INITIAL_CONFIG)
   set(INITIAL_CONFIG "..." CACHE INTERNAL "hidden flag...")
   set(CMAKE_INSTALL_PREFIX $ENV{HOME}/local CACHE STRING "Install path prefix, prepended onto install directories." FORCE)
 endif()
 
-# include(${VTK_USE_FILE})
-# include_directories(${VTK_INCLUDE_DIRS})
-
-FIND_PACKAGE(CGAL REQUIRED)
+find_package(CGAL REQUIRED)
 include(${CGAL_USE_FILE})
-#include_directories(${VTK_INCLUDE_DIRS})
 
-# Qt5
-find_package(Qt5 COMPONENTS Core Gui Widgets Network Xml REQUIRED)
-INCLUDE_DIRECTORIES(${Qt5Core_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${Qt5Gui_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${Qt5Widgets_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${Qt5Network_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${Qt5Xml_INCLUDE_DIRS})
+# --- Qt6 ---
+find_package(Qt6 COMPONENTS Core Gui Widgets Network Xml REQUIRED)
 
 # set include directory, add src directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tetgen)
@@ -112,10 +114,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libengrid)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/libengrid)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${VTK_INCLUDE_DIRS})
 
 option(PROFILING "add -g for profiling even in RELEASE configuration?" OFF)
 
-#if (CMAKE_BUILD_TYPE MATCHES Release)
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
   add_definitions(-DNDEBUG)
   add_definitions(-DQT_NO_DEBUG)
@@ -130,16 +132,27 @@ endif()
 add_subdirectory(tetgen)
 add_subdirectory(libengrid)
 
-add_executable(engrid main.cpp)
+add_executable(engrid main.cpp libengrid/guimainwindow.ui)
 
-target_link_libraries(engrid libengrid)
-target_link_libraries(engrid tet)
-target_link_libraries(engrid Qt5::Core)
-target_link_libraries(engrid Qt5::Gui)
-target_link_libraries(engrid Qt5::Widgets)
-target_link_libraries(engrid Qt5::Network)
-target_link_libraries(engrid Qt5::Xml)
-target_link_libraries(engrid ${VTK_LIBRARIES})
+set_target_properties(engrid PROPERTIES
+    AUTOUIC ON
+    AUTOMOC ON
+    AUTORCC ON
+)
+
+target_include_directories(engrid PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libengrid)
+target_include_directories(engrid PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libengrid/libengrid_autogen/include)
+
+target_link_libraries(engrid PRIVATE
+    libengrid
+    tet
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Network
+    Qt6::Xml
+    ${VTK_LIBRARIES}
+)
 
 install(TARGETS engrid DESTINATION bin)
 
@@ -149,5 +162,4 @@ install(
   DESTINATION bin
 )
 
-add_dependencies(engrid tetgen libengrid)
 

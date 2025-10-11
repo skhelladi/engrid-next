@@ -23,6 +23,7 @@
 #include <vtkIdList.h>
 #include <vtkSmartPointer.h>
 #include <vtkType.h>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkEgExtractVolumeCells)
 
@@ -243,7 +244,7 @@ void vtkEgExtractVolumeCells::ExecuteEg()
     }
   }
   QVector<vtkIdType> cells(ex_cells.size());
-  qCopy(ex_cells.begin(), ex_cells.end(), cells.begin());
+  std::copy(ex_cells.begin(), ex_cells.end(), cells.begin());
   QVector<vtkIdType> nodes;
   QVector<int>       _nodes;
   getNodesFromCells(cells, nodes, m_Input);

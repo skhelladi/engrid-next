@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -103,7 +104,7 @@ void PointFinder::getClosePoints(vec3_t x, QVector<int> &points, double dist)
       cell = m_Octree.getParent(cell);
     }
     points.resize(m_Buckets[cell].size());
-    qCopy(m_Buckets[cell].begin(), m_Buckets[cell].end(), points.begin());
+    std::copy(m_Buckets[cell].begin(), m_Buckets[cell].end(), points.begin());
   } else {
     points.resize(m_Points.size());
     for (int i = 0; i < points.size(); ++i) {

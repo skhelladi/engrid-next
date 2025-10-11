@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -53,7 +54,7 @@ void EdgeLengthSourceManager::populateListWidget()
 {
   if (m_ListWidget) {
     m_ListWidget->clear();
-    foreach (EdgeLengthSource *source, m_Sources) {
+    for (EdgeLengthSource *source : m_Sources) {
       m_ListWidget->addItem(source->name());
     }
   }
@@ -64,8 +65,8 @@ void EdgeLengthSourceManager::read()
   m_Sources.clear();
   QString xml_text = GuiMainWindow::pointer()->getXmlSection("engrid/sources");
   QStringList lines = xml_text.split("\n");
-  foreach (QString line, lines) {
-    foreach (EdgeLengthSource* sample, m_Samples) {
+  for (const QString &line : lines) {
+    for (EdgeLengthSource* sample : m_Samples) {
       if (sample->read(line.trimmed())) {
         if (dynamic_cast<GuiEdgeLengthSourceSphere*>(sample)) {
           GuiEdgeLengthSourceSphere *S = new GuiEdgeLengthSourceSphere;
@@ -99,7 +100,7 @@ void EdgeLengthSourceManager::read()
 void EdgeLengthSourceManager::write()
 {
   QString xml_text = "";
-  foreach (EdgeLengthSource* source, m_Sources) {
+  for (EdgeLengthSource* source : m_Sources) {
     xml_text += source->write();
     xml_text += "\n";
   }
@@ -109,10 +110,10 @@ void EdgeLengthSourceManager::write()
 double EdgeLengthSourceManager::minEdgeLength(vec3_t x)
 {
   double L_min = 1e99;
-  foreach (EdgeLengthSource* source, m_Sources) {
+  for (EdgeLengthSource* source : m_Sources) {
     double L = source->edgeLength(x);
     if (L > 0) {
-      L_min = min(L, L_min);
+      L_min = std::min(L, L_min);
     }
   }
   return L_min;
@@ -122,7 +123,7 @@ void EdgeLengthSourceManager::edit()
 {
   if (m_ListWidget->currentItem()) {
     QString selected_name = m_ListWidget->currentItem()->text();
-    foreach (EdgeLengthSource* source, m_Sources) {
+    for (EdgeLengthSource* source : m_Sources) {
       if (source->name() == selected_name) {
         source->config();
         break;
@@ -137,7 +138,7 @@ void EdgeLengthSourceManager::remove()
   if (m_ListWidget->currentItem()) {
     QList<EdgeLengthSource*> new_sources;
     QString selected_name = m_ListWidget->currentItem()->text();
-    foreach (EdgeLengthSource* source, m_Sources) {
+    for (EdgeLengthSource* source : m_Sources) {
       if (source->name() == selected_name) {
         delete source;
       } else {
@@ -187,10 +188,9 @@ void EdgeLengthSourceManager::addBox()
 
 void EdgeLengthSourceManager::readRules(vtkUnstructuredGrid *grid)
 {
-  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules");
-  rules_txt = rules_txt.replace("\n", " ");
+  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/rules");
   rules_txt = rules_txt.trimmed();
-  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  QStringList rules = rules_txt.split(";", Qt::SkipEmptyParts);
   foreach (QString rule, rules) {
     RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
     m_Sources.append(S);
@@ -202,8 +202,8 @@ void EdgeLengthSourceManager::readBoundaryLayerRules(vtkUnstructuredGrid *grid)
   QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules");
   rules_txt = rules_txt.replace("\n", " ");
   rules_txt = rules_txt.trimmed();
-  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
-  foreach (QString rule, rules) {
+  QStringList rules = rules_txt.split(";", Qt::SkipEmptyParts);
+  for (const QString &rule : rules) {
     RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
     m_Sources.append(S);
   }

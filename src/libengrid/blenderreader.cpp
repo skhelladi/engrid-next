@@ -23,6 +23,8 @@
 #include "guimainwindow.h"
 #include "pointfinder.h"
 
+#include <algorithm> // For std::sort, std::copy, std::min
+
 BlenderReader::BlenderReader()
 {
   setFormat("Blender/Engrid files(*.begc *.BEGC)");
@@ -50,7 +52,7 @@ void BlenderReader::operate()
         f >> part_name[i_part];
       }
       QVector<QString> sorted_part_name = part_name;
-      qSort(sorted_part_name);
+      std::sort(sorted_part_name.begin(), sorted_part_name.end());
       QVector<int> part_bc(part_name.size());
       for (int i_part = 0; i_part < num_parts; ++i_part) {
         part_bc[i_part] = sorted_part_name.indexOf(part_name[i_part]) + 1;
@@ -75,9 +77,9 @@ void BlenderReader::operate()
         }
       }
       QVector<vec3_t> nodes(rnodes.size());
-      qCopy(rnodes.begin(), rnodes.end(), nodes.begin());
+      std::copy(rnodes.begin(), rnodes.end(), nodes.begin());
       QVector<QVector<int> > faces(rfaces.size());
-      qCopy(rfaces.begin(), rfaces.end(), faces.begin());
+      std::copy(rfaces.begin(), rfaces.end(), faces.begin());
 
       // find smallest edge length
       double L = 1e99;
@@ -89,7 +91,7 @@ void BlenderReader::operate()
             n2 = face[i+1];
           }
           double l = (nodes[n1] - nodes[n2]).abs();
-          L = min(l, L);
+          L = std::min(l, L);
         }
       }
 

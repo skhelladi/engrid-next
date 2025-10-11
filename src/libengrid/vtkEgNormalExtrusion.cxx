@@ -24,6 +24,7 @@
 #include "geometrytools.h"
 #include <vtkIdList.h>
 #include <vtkSmartPointer.h>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkEgNormalExtrusion)
 
@@ -513,5 +514,5 @@ void vtkEgNormalExtrusion::ExecuteEg()
 void vtkEgNormalExtrusion::SetLayers(const QVector<double> &y)
 {
   layer_y.resize(y.size());
-  qCopy(y.begin(), y.end(), layer_y.begin());
+  std::copy(y.begin(), y.end(), layer_y.begin());
 }

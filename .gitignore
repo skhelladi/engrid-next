@@ -41,6 +41,7 @@ Makefile.*engrid*
 
 netgen_svn
 third_party
+3rdparty
 third_party64
 tmp.txt
 *.kdevelop.pcs

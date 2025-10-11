@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -31,13 +32,13 @@ SeedSimplePrismaticLayer::SeedSimplePrismaticLayer()
 void SeedSimplePrismaticLayer::setLayerCells(const QVector<vtkIdType> &cells)
 {
   layer_cells.resize(cells.size());
-  qCopy(cells.begin(), cells.end(), layer_cells.begin());
+  std::copy(cells.begin(), cells.end(), layer_cells.begin());
 }
 
 void SeedSimplePrismaticLayer::getLayerCells(QVector<vtkIdType> &cells)
 {
   cells.resize(layer_cells.size());
-  qCopy(layer_cells.begin(), layer_cells.end(), cells.begin());
+  std::copy(layer_cells.begin(), layer_cells.end(), cells.begin());
 }
 
 void SeedSimplePrismaticLayer::prepareLayer()

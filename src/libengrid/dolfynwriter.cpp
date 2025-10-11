@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -35,7 +36,7 @@ void DolfynWriter::writeVertices()
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
-    str.sprintf("%9d      %16.9E%16.9E%16.9E\n", id_node + 1, x[0], x[1], x[2]);
+    str = QString::asprintf("%9lld      %16.9E%16.9E%16.9E\n", id_node + 1, x[0], x[1], x[2]);
     f << str;
   }
 }
@@ -49,20 +50,19 @@ void DolfynWriter::writeElements()
   for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
     EG_GET_CELL(cellId, m_Grid);
     if (m_Grid->GetCellType(cellId) == VTK_HEXAHEDRON) {
-        str.sprintf("%8d %8d %8d %8d %8d %8d %8d %8d %8d %4d %4d\n",
+        str = QString::asprintf("%8d %8lld %8lld %8lld %8lld %8lld %8lld %8lld %8lld %4d %4d\n",
                     elid, 
                     pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[3] + 1,
                     pts[4] + 1, pts[5] + 1, pts[6] + 1, pts[7] + 1,
                     1, 1);
     }  else if (m_Grid->GetCellType(cellId) == VTK_TETRA) {
-        str.sprintf("%8d %8d %8d %8d %8d %8d %8d %8d %8d %4d %4d\n",
+        str = QString::asprintf("%8d %8lld %8lld %8lld %8lld %8lld %8lld %8lld %8lld %4d %4d\n",
                     elid, 
                     pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[2] + 1,
                     pts[3] + 1, pts[3] + 1, pts[3] + 1, pts[3] + 1,
                     1, 1);
-    } else if (m_Grid->GetCellType(cellId) == VTK_PYRAMID) {
-        str.sprintf("%8d %8d %8d %8d %8d %8d %8d %8d %8d %4d %4d\n",
-                    elid, 
+            } else if (m_Grid->GetCellType(cellId) == VTK_PYRAMID) {
+                str = QString::asprintf("%8d %8lld %8lld %8lld %8lld %8lld %8lld %8lld %8lld %4d %4d\n",                    elid, 
                     pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[3] + 1,
                     pts[4] + 1, pts[4] + 1, pts[4] + 1, pts[4] + 1,
                     1, 1);
@@ -73,7 +73,7 @@ void DolfynWriter::writeElements()
                     pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[2] + 1,
                     pts[3] + 1, pts[4] + 1, pts[5] + 1, pts[5] + 1,
                     1, 1); */
-        str.sprintf("%8d %8d %8d %8d %8d %8d %8d %8d %8d %4d %4d\n",
+        str = QString::asprintf("%8d %8lld %8lld %8lld %8lld %8lld %8lld %8lld %8lld %4d %4d\n",
                     elid, 
                     pts[3] + 1, pts[4] + 1, pts[5] + 1, pts[5] + 1,
                     pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[2] + 1,
@@ -94,7 +94,7 @@ void DolfynWriter::writeBoundaries()
   QString str;
   QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  foreach (int bc, bcs) {
+  for (int bc : bcs) {
     BoundaryCondition BC = GuiMainWindow::pointer()->getBC(bc);
     QString bc_name = BC.getName();
     QList<vtkIdType> faces;
@@ -105,15 +105,13 @@ void DolfynWriter::writeBoundaries()
         }
       }
     }
-    foreach (vtkIdType id_cell, faces) {
+    for (vtkIdType id_cell : faces) {
       EG_GET_CELL(id_cell, m_Grid);
       if (m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) {
-        str.sprintf("%8d %8d %8d %8d %9d %4d %4d",
-                    bndid,
-                    pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[2] + 1, 
-                    bcid, 0);
+        str = QString::asprintf("%8d %8lld %8lld %8lld %9lld %4d %4d", 
+                    bcid, pts[0] + 1, pts[1] + 1, pts[2] + 1, 0, 1, 1);
       } else if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
-        str.sprintf("%8d %8d %8d %8d %9d %4d %4d",
+        str = QString::asprintf("%8d %8lld %8lld %8lld %9lld %4d %4d",
                     bndid,
                     pts[0] + 1, pts[1] + 1, pts[2] + 1, pts[3] + 1, 
                     bcid, 0);

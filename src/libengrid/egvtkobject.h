@@ -21,6 +21,8 @@
 #ifndef egvtkobject_H
 #define egvtkobject_H
 
+#include <algorithm> // For std::copy
+
 class EgVtkObject;
 
 class BezierTriangle;
@@ -669,7 +671,7 @@ void EgVtkObject::qcontIntersection(const C1& c1, const C2& c2, QVector<typename
   QSet<typename C1::value_type> inters_set;
   qcontIntersection(c1, c2, inters_set);
   inters.resize(inters_set.size());
-  qCopy(inters_set.begin(), inters_set.end(), inters.begin());
+  std::copy(inters_set.begin(), inters_set.end(), inters.begin());
 }
 
 template <class C>
@@ -679,7 +681,7 @@ void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstruc
   QVector<vtkIdType> cells;
   QVector<vtkIdType> nodes;
   cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), cells.begin());
+  std::copy(cls.begin(), cls.end(), cells.begin());
   getNodesFromCells(cells, nodes, grid);
   allocateGrid(sub_grid, cells.size(), nodes.size());
   vtkIdType id_new_node = 0;
@@ -1015,9 +1017,9 @@ inline bool EgVtkObject::getXmlSetting<QString>(QString key, QString xml_section
 {
   QString buffer = getXmlSection(xml_section);
   bool found = false;
-  QStringList items = buffer.split(";", QString::SkipEmptyParts);
+  QStringList items = buffer.split(";", Qt::SkipEmptyParts);
   foreach (QString item, items) {
-    QStringList words = item.split("=", QString::SkipEmptyParts);
+    QStringList words = item.split("=", Qt::SkipEmptyParts);
     if (words.size() == 2) {
       if (words[0] == key) {
         found = true;

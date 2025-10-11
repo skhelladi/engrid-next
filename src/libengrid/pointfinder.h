@@ -21,6 +21,8 @@
 #ifndef POINTFINDER_H
 #define POINTFINDER_H
 
+#include <algorithm> // For std::copy, std::min, std::max
+
 #include "octree.h"
 #include "triangle.h"
 #include "timer.h"
@@ -68,7 +70,7 @@ template <typename C>
 void PointFinder::setPoints(const C &points)
 {
   m_Points.resize(points.size());
-  qCopy(points.begin(), points.end(), m_Points.begin());
+  std::copy(points.begin(), points.end(), m_Points.begin());
   {
     vec3_t x1(1e99, 1e99, 1e99);
     vec3_t x2(-1e99, -1e99, -1e99);
@@ -117,8 +119,8 @@ void PointFinder::setPoints(const C &points)
   m_MaxBucketSize = 0;
   m_MinBucketSize = points.size();
   for (int i = 0; i < m_Buckets.size(); ++i) {
-    m_MinBucketSize = min(m_MinBucketSize, m_Buckets[i].size());
-    m_MaxBucketSize = max(m_MaxBucketSize, m_Buckets[i].size());
+    m_MinBucketSize = std::min(m_MinBucketSize, (int)m_Buckets[i].size());
+    m_MaxBucketSize = std::max(m_MaxBucketSize, (int)m_Buckets[i].size());
   }
 }
 

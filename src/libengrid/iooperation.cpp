@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -79,7 +80,7 @@ void IOOperation::readOutputFileName(QString default_filename)
   QFileDialog dialog(NULL, "write file", GuiMainWindow::getCwd(), m_FormatTxt);
   dialog.selectFile(default_filename);
   dialog.setAcceptMode(QFileDialog::AcceptSave);
-  dialog.setConfirmOverwrite(true);
+  dialog.setOption(QFileDialog::DontConfirmOverwrite, false);
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
     m_FileName = selected_files[0];

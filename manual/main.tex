@@ -1,7 +1,6 @@
 \documentclass[british]{book}
 \usepackage[T1]{fontenc}
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}
+\usepackage[utf8]{inputenc}
 \makeatletter
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -17,7 +16,7 @@
 \usepackage{lastpage}
 \usepackage{setspace}
 \usepackage{natbib}
-\usepackage[german,british]{babel}
+\usepackage[british]{babel}
 
 \setlength\textheight{220mm}
 \setlength\textwidth{155mm}
@@ -61,32 +60,14 @@
         \begin{tabular}{l}
           \begin{tabular}{l}
             \vspace{-1mm} enGits GmbH\\
-            \iflanguage{british} {
-              \vspace{-1mm} Postfach 32\\
-              \vspace{-1mm} 79670 Todtnau\\
-              \vspace{0mm} Germany\\
-            }
-            {}
-            \iflanguage{german} {
-              \vspace{-1mm} Postfach 32\\
-              \vspace{-1mm} 79670 Todtnau\\
-              \vspace{0mm} Deutschland\\
-            }
-            {}
+            \vspace{-1mm} Postfach 32\\
+            \vspace{-1mm} 79670 Todtnau\\
+            \vspace{0mm} Germany\\
           \end{tabular}\\
           \begin{tabular}{lcl}
-            \iflanguage{german} {
-              \vspace{-1mm} Telefon & : & +49 (0)7671 992 511 0 \\
-              \vspace{-1mm} Telefax & : & +49 (0)7671 992 511 2 \\
-              \vspace{-1mm} E-Mail & : & info@engits.com \\
-            }
-            {}
-            \iflanguage{british} {
               \vspace{-1mm} phone & : & +49 (0)7671 992 511 0 \\
               \vspace{-1mm} fax & : & +49 (0)7671 992 511 0 \\
               \vspace{-1mm} email & : & info@engits.com \\
-            }
-            {}
           \end{tabular}\\
         \end{tabular}
         \vspace{3mm}$~$\\
@@ -110,20 +91,16 @@
     \begin{center}
       \begin{tabular}{|p{2cm}|p{81mm}|}
         \hline
-        \iflanguage{british}{title}{}
-        \iflanguage{german}{Titel}{}
+        title
         & \engitstitle \\
         \hline
-        \iflanguage{british}{date}{}
-        \iflanguage{german}{Datum}{}
+        date
         & \engitsdate \\
         \hline
-        \iflanguage{british}{author}{}
-        \iflanguage{german}{Autor}{}
+        author
         & \engitsauthor \\
         \hline
-        \iflanguage{british}{version & \engitsversion \\}{}
-        \iflanguage{german}{Version & \ifthenelse{\equal{\engitsversion}{draft}}{Entwurf}{\engitsversion} \\}{}
+        version & \engitsversion \\
         \hline
       \end{tabular}
     \end{center}
@@ -146,15 +123,13 @@
   \begin{minipage}[b]{12cm}
     \begin{flushright}
       {\bf\engitstitle} \\ \engitsauthor \\
-      \iflanguage{british}{version \engitsversion, }{}
-      \iflanguage{german}{Version \ifthenelse{\equal{\engitsversion}{draft}}{Entwurf, }{\engitsversion, }}{}
+      version \engitsversion, 
       \engitsdate
     \end{flushright}
   \end{minipage}
 }
 \fancyfoot[RE,RO]{
-  \iflanguage{british}{page \thepage {} of \pageref{LastPage}}{}
-  \iflanguage{german}{Seite \thepage {} von \pageref{LastPage}}{}
+  page \thepage {} of \pageref{LastPage}
 }
 
 \newcommand\eg{ENGRID\ }
@@ -184,7 +159,6 @@
 }
 
 \makeatother
-\usepackage{babel}
 
 \newcommand\comment[2]{{\color{red}{\bf#1}\it#2}}
 

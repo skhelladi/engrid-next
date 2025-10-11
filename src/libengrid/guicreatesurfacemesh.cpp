@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -345,7 +346,7 @@ void GuiCreateSurfaceMesh::getTableFromText()
     bc_map[m_Ui.listWidget->item(i)->text().split(":")[1].trimmed()] = i;
   }
   m_NumCols = bc_map.size() + 3;
-  QStringList rules = m_Ui.textEdit->toPlainText().split(";", QString::SkipEmptyParts);
+  QStringList rules = m_Ui.textEdit->toPlainText().split(";", Qt::SkipEmptyParts);
   m_Table.clear();
   foreach (QString rule, rules) {
     rule = rule.trimmed();

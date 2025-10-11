@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -599,7 +600,7 @@ void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, QVect
   }
   nodes1.intersect(nodes2);
   common_nodes.resize(nodes1.size());
-  qCopy(nodes1.begin(), nodes1.end(), common_nodes.begin());
+  std::copy(nodes1.begin(), nodes1.end(), common_nodes.begin());
 }
 
 bool MeshPartition::isFeatureEdge(vtkIdType id_node1, vtkIdType id_node2, double feature_angle)

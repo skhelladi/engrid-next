@@ -26,6 +26,8 @@
 #include "guisetboundarycode.h"
 #include "guipick.h"
 
+#include <algorithm>
+
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 #include "stlreader.h"
 #include "gmshreader.h"
@@ -504,7 +506,7 @@ void GuiMainWindow::exit()
 
 vtkRenderWindow* GuiMainWindow::getRenderWindow()
 {
-  return ui.centralwidget->GetRenderWindow();
+  return ui.centralwidget->renderWindow();
 }
 
 vtkRenderer* GuiMainWindow::getRenderer()
@@ -514,7 +516,7 @@ vtkRenderer* GuiMainWindow::getRenderer()
 
 QVTKInteractor* GuiMainWindow::getInteractor()
 {
-  return ui.centralwidget->GetInteractor();
+  return ui.centralwidget->interactor();
 }
 
 QString GuiMainWindow::getCwd()
@@ -1037,9 +1039,9 @@ void GuiMainWindow::openPhysicalBoundaryConditions()
   QStringList lines = buffer.split("\n");
   foreach (QString line, lines) {
     line = line.trimmed();
-    QStringList parts = line.split(";", QString::SkipEmptyParts);
+    QStringList parts = line.split(";", Qt::SkipEmptyParts);
     if (parts.size() > 0) {
-      QStringList words = parts[0].split(" ", QString::SkipEmptyParts);
+      QStringList words = parts[0].split(" ", Qt::SkipEmptyParts);
       int index = words[0].trimmed().toInt();
       QString name = words[1].trimmed();
       QString type = words[2].trimmed();
@@ -1271,7 +1273,7 @@ void GuiMainWindow::saveAs()
   QFileInfo file_info(m_CurrentFilename);
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   dialog.setAcceptMode(QFileDialog::AcceptSave);
-  dialog.setConfirmOverwrite(true);
+  dialog.setOption(QFileDialog::DontConfirmOverwrite, false);
   if (dialog.exec()) {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QStringList selected_files = dialog.selectedFiles();
@@ -1946,8 +1948,8 @@ void GuiMainWindow::about()
 void GuiMainWindow::getAllBoundaryCodes(QVector<int> &bcs)
 {
   bcs.resize(m_AllBoundaryCodes.size());
-  qCopy(m_AllBoundaryCodes.begin(), m_AllBoundaryCodes.end(), bcs.begin());
-  qSort(bcs);
+  std::copy(m_AllBoundaryCodes.begin(), m_AllBoundaryCodes.end(), bcs.begin());
+  std::sort(bcs.begin(), bcs.end());
 }
 
 QSet<int> GuiMainWindow::getAllBoundaryCodes()

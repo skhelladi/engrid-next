@@ -18,9 +18,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "egvtkobject.h"
-#include "engrid.h"
-#include "guimainwindow.h"
+#include <algorithm>
 
 #include <vtkCellData.h>
 #include <vtkPointData.h>
@@ -32,6 +30,9 @@
 #include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkType.h>
+
+#include "egvtkobject.h"
+#include "guimainwindow.h"
 
 int EgVtkObject::DebugLevel;
 
@@ -101,9 +102,9 @@ void EgVtkObject::createNodeToBcMapping
 {
   EG_BUG;
   bcs.fill(QSet<int>(), grid->GetNumberOfPoints());
-  grid->BuildLinks();
-  auto abstract_links = grid->GetCellLinks();
-  auto cell_links = dynamic_cast<vtkCellLinks*>(abstract_links);
+  vtkCellLinks *cell_links = vtkCellLinks::New();
+  cell_links->SetDataSet(grid);
+  cell_links->BuildLinks();
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   for (vtkIdType nodeId = 0; nodeId < grid->GetNumberOfPoints(); ++nodeId) {
     int Ncells = cell_links->GetNcells(nodeId);
@@ -117,6 +118,7 @@ void EgVtkObject::createNodeToBcMapping
       }
     }
   }
+  cell_links->Delete();
 }
 
 void EgVtkObject::createNodeToCell
@@ -305,7 +307,7 @@ void EgVtkObject::createNodeToNode
   n2n.resize(n2n_set.size());
   for (int i = 0; i < n2n.size(); ++i) {
     n2n[i].resize(n2n_set[i].size());
-    qCopy(n2n_set[i].begin(), n2n_set[i].end(), n2n[i].begin());
+    std::copy(n2n_set[i].begin(), n2n_set[i].end(), n2n[i].begin());
   }
 }
 
@@ -871,6 +873,7 @@ vec3_t EgVtkObject::cellCentre(vtkUnstructuredGrid *grid, vtkIdType id_cell)
 
 double EgVtkObject::faceAngle(vtkUnstructuredGrid *grid, vtkIdType id_face1, vtkIdType id_face2)
 {
+  using namespace GeometryTools;
   QList<vtkIdType> edge_nodes;
   sharedNodesOfCells(grid, id_face1, id_face2, edge_nodes);
   if (edge_nodes.size() != 2) {

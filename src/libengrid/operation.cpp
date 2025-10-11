@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -247,7 +248,7 @@ void Operation::eliminateDuplicateCells(bool surf_only)
       for (int i = 0; i < num_pts; ++i) {
         nodes[i] = pts[i];
       }
-      qSort(nodes);
+      std::sort(nodes.begin(), nodes.end());
       cell_nodes[id_cell] = nodes;
     }
   }

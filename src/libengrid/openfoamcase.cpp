@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -41,10 +42,10 @@ void OpenFOAMcase::writeMpiParameters()
   QVector <QString> weight;
   
   QStringList host_weight_list = hostfile_text.split(",");
-  foreach(QString host_weight, host_weight_list) {
+  for (const QString &host_weight : host_weight_list) {
     if(!host_weight.isEmpty()){
       QStringList values = host_weight.split(":");
-      qWarning()<<"values="<<values;
+      // qWarning()<<"values="<<values;
       host.push_back(values[0].trimmed());
       weight.push_back(values[1].trimmed());
     }
@@ -62,7 +63,7 @@ void OpenFOAMcase::writeMpiParameters()
   }
   QTextStream out( &hostfile );
   for(int i = 0; i < host.size(); i++) {
-    out << host[i] << endl;
+    out << host[i] << "\n";
   }
   hostfile.close();
   
@@ -101,7 +102,7 @@ void OpenFOAMcase::writeBoundaryConditions()
   QString epsilon_buffer = "";
   QString omega_buffer = "";
   QString nut_buffer = "";
-  foreach (int bc, bcs) {
+  for (int bc : bcs) {
     BoundaryCondition BC = GuiMainWindow::pointer()->getBC(bc);
     if (!GuiMainWindow::pointer()->physicalTypeDefined(BC.getType())) {
       QString msg;

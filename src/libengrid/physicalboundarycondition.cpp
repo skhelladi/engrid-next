@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -22,6 +23,7 @@
 
 #include <QStringList>
 #include <QtDebug>
+#include <QIODevice>
 
 PhysicalBoundaryCondition::PhysicalBoundaryCondition()
 {

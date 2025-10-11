@@ -21,6 +21,8 @@
 #ifndef deletecells_H
 #define deletecells_H
 
+#include <algorithm> // For std::copy
+
 class DeleteCells;
 
 #include "operation.h"
@@ -51,7 +53,7 @@ template <class T>
 void DeleteCells::setCellsToDelete(const T &cls)
 {
   m_DelCells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), m_DelCells.begin());
+  std::copy(cls.begin(), cls.end(), m_DelCells.begin());
 }
 
 

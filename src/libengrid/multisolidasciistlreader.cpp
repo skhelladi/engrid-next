@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -72,7 +73,7 @@ void MultiSolidAsciiStlReader::operate()
           EG_ERR_RETURN("unable to open file\"" + file_name + "\" for writing");
         }
         QTextStream f(&file);
-        f << buf << endl;
+        f << buf << "\n";
       }
       StlReader stl;
       stl.setTolerance(tol);

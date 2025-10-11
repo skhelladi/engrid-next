@@ -9,30 +9,76 @@ The documentation is updated automatically and should contain the correct docume
 
 ## Building enGrid
 
-Due significant changes to the *enGrid* codebase, only the master branch version of *enGrid* is actively supported.  The code now makes use of the CMake build system, which should simplify compilation.
+Due to significant changes to the *enGrid* codebase, only the master branch version of *enGrid* is actively supported. The code now makes use of the CMake build system, which should simplify compilation.
 
 The main dependencies for *enGrid* are:
-* Qt 4
-* VTK 6.\*
+
+* Qt 6
+* VTK 9.5 (with Qt support)
 * CMake
-* CGAL 
+* CGAL
+* Netgen (optional, for tetrahedral meshing)
 
-VTK needs to be compiled with Qt support, as *enGrid* depends on QVtkWidget.  The plan is to move to qt5 in the near future, which would also allow to upgrade to the latest version of VTK.
+VTK needs to be compiled with Qt support, as *enGrid* depends on QVTKOpenGLNativeWidget for Qt6 integration.
 
-*enGrid* was successfully compiled on **Ubuntu 16.04 (Xenial Xerus)** with the following dependency versions:
-* Qt 4.8.7
-* CMake 3.5.1
-* VTK 6.2
-* CGAL 4.7-4
+*enGrid* was successfully compiled on **Ubuntu 24.04** with the following dependency versions:
 
-As **Ubuntu 16.04** only has Qt 5 support for VTK, VTK had to be compiled locally. The VTK build was configured using the following command:
+* Qt 6.9.1
+* CMake 3.28.3
+* VTK 9.5 (compiled with Qt6 support)
+* CGAL 5.6
+* Netgen 6.2
 
-`cmake -DCMAKE_BUILD_TYPE=Release -DVTK_Group_Qt=ON -DCMAKE_INSTALL_PREFIX=/the/path/of/your/choice`
+### Building VTK with Qt6 support
 
-*enGrid* can then be configured and compiled in a separate build directory using:
+Download and build VTK 9.5 with Qt6 support:
 
-`ccmake ..\src`
+```bash
+git clone https://gitlab.kitware.com/vtk/vtk.git
+cd vtk
+git checkout v9.5.0
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DVTK_GROUP_ENABLE_Qt=YES \
+      -DVTK_MODULE_ENABLE_VTK_GUISupportQt=YES \
+      -DCMAKE_INSTALL_PREFIX=/path/to/vtk-install \
+      ..
+make -j$(nproc)
+make install
+```
 
-pressing `[c]` to configure, pressing `[c]` a second time to accept the changes, and pressing `[g]` to generate the Makefiles and exit. The code can then be compiled and installed using make:
+### Configuring and Compiling enGrid
 
-`make -j8 install`
+*enGrid* can be configured and compiled in a separate build directory using:
+
+```bash
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_PREFIX_PATH="/path/to/qt6;/path/to/vtk-install" \
+      ../src
+make -j$(nproc)
+make install
+```
+
+Or use ccmake for interactive configuration:
+
+```bash
+ccmake ../src
+```
+
+Press `[c]` to configure, `[c]` again to accept changes, and `[g]` to generate Makefiles and exit. Then compile:
+
+```bash
+make -j$(nproc) install
+```
+
+### Running enGrid
+
+After installation, you can run enGrid with:
+
+```bash
+export LD_LIBRARY_PATH=/path/to/vtk-install/lib:$LD_LIBRARY_PATH
+./engrid
+```
+
+Make sure VTK libraries are in your LD_LIBRARY_PATH.

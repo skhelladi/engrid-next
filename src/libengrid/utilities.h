@@ -32,6 +32,8 @@
 #include <iostream>
 using namespace std;
 
+#include <algorithm>
+
 #include "math/mathvector.h"
 #include "math/smallsquarematrix.h"
 #include "math/linsolve.h"
@@ -219,8 +221,8 @@ template <class T>
 QVector <T> set2Vector(QSet <T> a_set, bool a_sort)
 {
   QVector <T> l_vector(a_set.size());
-  qCopy(a_set.begin(),a_set.end(),l_vector.begin());
-  if(a_sort) qSort(l_vector.begin(),l_vector.end());
+  std::copy(a_set.begin(),a_set.end(),l_vector.begin());
+  if(a_sort) std::sort(l_vector.begin(),l_vector.end());
   return(l_vector);
 }
 

@@ -19,7 +19,7 @@
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTETLIBRARY")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTETLIBRARY -Wno-deprecated")
 
 SET(libengrid_HEADERS
   blenderreader.h
@@ -225,17 +225,7 @@ SET(libengrid_FORMS
   guiypluscalculator.ui
 )
 
-# QT4_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
-# QT4_WRAP_UI(libengrid_FORMS_HEADERS ${libengrid_FORMS})
-# QT4_ADD_RESOURCES(libengrid_RESOURCES_RCC engrid.qrc)
-
-qt_wrap_cpp(libengrid_HEADERS_MOC ${libengrid_HEADERS})
-qt_wrap_ui(libengrid_FORMS_HEADERS ${libengrid_FORMS})
-qt_add_resources(libengrid_RESOURCES_RCC engrid.qrc)
-
 SET(libengrid_SOURCES
-  ${libengrid_HEADERS}
-  ${linengrid_HEADERS_MOC}
   blenderreader.cpp
   blenderwriter.cpp
   boundarycondition.cpp
@@ -388,23 +378,29 @@ SET(libengrid_SOURCES
   restricttoavailablevolumecells.cpp
 )
 
-
-ADD_LIBRARY(libengrid SHARED ${libengrid_SOURCES} ${libengrid_HEADERS_MOC} ${libengrid_FORMS_HEADERS} ${libengrid_RESOURCES_RCC})
+# CMAKE_AUTOMOC, CMAKE_AUTOUIC and CMAKE_AUTORCC handle this now.
+add_library(libengrid SHARED
+    ${libengrid_SOURCES}
+    ${libengrid_FORMS}
+    engrid.qrc
+)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   SET_TARGET_PROPERTIES(libengrid PROPERTIES MACOSX_RPATH 1)
 endif()
 
 SET_TARGET_PROPERTIES(libengrid PROPERTIES VERSION ${ENGRID_VERSION})
-SET_TARGET_PROPERTIES(libengrid PROPERTIES COMPILE_FLAGS "-Wno-deprecated")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  target_link_libraries(libengrid tet)
-  target_link_libraries(libengrid ${QT_LIBRARIES})
-  target_link_libraries(libengrid ${VTK_LIBRARIES})
-endif()
+target_link_libraries(libengrid PRIVATE
+    tet
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Network
+    Qt6::Xml
+    ${VTK_LIBRARIES}
+)
 
-target_link_libraries(libengrid ${VTK_LIBRARIES})
 INSTALL(TARGETS libengrid LIBRARY DESTINATION lib${LIB_SUFFIX})
 INSTALL(FILES ${libengrid_HEADERS} DESTINATION include/engrid)
 

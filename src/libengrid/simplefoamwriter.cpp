@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -204,8 +205,8 @@ void SimpleFoamWriter::createFaces()
   }
   
   m_Faces.resize(m_LFaces.size());
-  qCopy(m_LFaces.begin(), m_LFaces.end(), m_Faces.begin());
-  qSort(m_Faces);
+  std::copy(m_LFaces.begin(), m_LFaces.end(), m_Faces.begin());
+  std::sort(m_Faces.begin(), m_Faces.end());
   
 }
 
@@ -400,7 +401,7 @@ void SimpleFoamWriter::writeBoundary(int faces_offset)
     patch[N_bc] = P;
     ++N_bc;
   }
-  qSort(patch);
+  std::sort(patch.begin(), patch.end());
   foreach (patch_t P, patch) {
     BoundaryCondition BC = getBC(P.bc);
     QString num;

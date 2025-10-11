@@ -21,6 +21,7 @@
 #include "facefinder.h"
 #include "engrid.h"
 #include "triangle.h"
+#include <algorithm>
 
 FaceFinder::FaceFinder()
 {
@@ -95,7 +96,7 @@ void FaceFinder::setGrid(vtkUnstructuredGrid *grid)
           EG_BUG;
         }
       }
-      max_num_faces = max(m_Faces[cell].size(), max_num_faces);
+      max_num_faces = std::max(max_num_faces, (int)m_Faces[cell].size());
       ave_num_faces += double(m_Faces[cell].size());
       ++num_buckets;
     }
@@ -245,8 +246,8 @@ int FaceFinder::refine()
         }
       }
     }
-    N_min = min(N_min, m_Faces[cell].size());
-    N_max = max(N_max, m_Faces[cell].size());
+    N_min = std::min(N_min, (int)m_Faces[cell].size());
+    N_max = std::max(N_max, (int)m_Faces[cell].size());
     N_ave += m_Faces[cell].size();
   }
   int N_cells = 0;
@@ -277,7 +278,7 @@ void FaceFinder::getCloseFaces(vec3_t x, QVector<vtkIdType> &faces)
       cell = m_Octree.getParent(cell);
     }
     faces.resize(m_Faces[cell].size());
-    qCopy(m_Faces[cell].begin(), m_Faces[cell].end(), faces.begin());
+    std::copy(m_Faces[cell].begin(), m_Faces[cell].end(), faces.begin());
   } else {
     faces.clear();
   }

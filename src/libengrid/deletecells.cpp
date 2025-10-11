@@ -20,16 +20,18 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "deletecells.h"
 
+#include <algorithm> // For std::copy
+
 void DeleteCells::setTraceCells(const QVector<vtkIdType> &cells)
 {
   m_TraceCells.resize(cells.size());
-  qCopy(cells.begin(), cells.end(), m_TraceCells.begin());
+  std::copy(cells.begin(), cells.end(), m_TraceCells.begin());
 }
 
 void DeleteCells::getTraceCells(QVector<vtkIdType> &cells)
 {
   cells.resize(m_TraceCells.size());
-  qCopy(m_TraceCells.begin(), m_TraceCells.end(), cells.begin());
+  std::copy(m_TraceCells.begin(), m_TraceCells.end(), cells.begin());
 }
 
 void DeleteCells::operate()
@@ -44,7 +46,7 @@ void DeleteCells::operate()
   QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
   {
     vtkIdType id_new = 0;
-    foreach (vtkIdType id_node, new_nodes) {
+    for (vtkIdType id_node : new_nodes) {
       vec3_t x;
       m_Grid->GetPoints()->GetPoint(id_node, x.data());
       new_grid ->GetPoints()->SetPoint(id_new, x.data());
@@ -54,7 +56,7 @@ void DeleteCells::operate()
     }
   }
   {
-    foreach (vtkIdType id_cell, new_cells) {
+    for (vtkIdType id_cell : new_cells) {
       /*
       vtkIdType *pts, N_pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
@@ -69,13 +71,13 @@ void DeleteCells::operate()
       old2new_cells[id_cell] = id_new;
     }
     QList<vtkIdType> new_trace_cells;
-    foreach (vtkIdType id_cell, m_TraceCells) {
+    for (vtkIdType id_cell : m_TraceCells) {
       if (old2new_cells[id_cell] != -1) {
         new_trace_cells.append(old2new_cells[id_cell]);
       }
     }
     m_TraceCells.resize(new_trace_cells.size());
-    qCopy(new_trace_cells.begin(), new_trace_cells.end(), m_TraceCells.begin());
+    std::copy(new_trace_cells.begin(), new_trace_cells.end(), m_TraceCells.begin());
   }
   makeCopy(new_grid, m_Grid);
 }

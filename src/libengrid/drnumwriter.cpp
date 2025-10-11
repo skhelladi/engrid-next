@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -40,7 +41,7 @@ QList<BoundaryCondition> DrNumWriter::getBcsOfType(QString type)
       bcs_of_type << bc;
     }
   }
-  qSort(bcs_of_type);
+  std::sort(bcs_of_type.begin(), bcs_of_type.end());
   return bcs_of_type;
 }
 
@@ -60,7 +61,7 @@ double DrNumWriter::edgeLength(QString bc_name)
   QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules");
   rules_txt = rules_txt.replace("\n", " ");
   rules_txt = rules_txt.trimmed();
-  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  QStringList rules = rules_txt.split(";", Qt::SkipEmptyParts);
   double h_min = EG_LARGE_REAL;
   foreach (QString rule, rules) {
     QStringList parts = rule.split("=");
@@ -131,7 +132,7 @@ void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance
     PhysicalBoundaryCondition pbc = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(bc.getType());
     int max_size = 6;
     for (int i = 0; i < pbc.getNumVars(); ++i) {
-      max_size = max(max_size, pbc.getVarName(i).size());
+      max_size = std::max(max_size, static_cast<int>(pbc.getVarName(i).size()));
     }
     info << "string " + QString("name").leftJustified(max_size) << " = " << bc.getName() << ";\n";
     info << "string " + QString("type").leftJustified(max_size) << " = " << pbc.getType() << ";\n";
@@ -162,7 +163,7 @@ void DrNumWriter::prepareWallLevelSets(QList<BoundaryCondition> bcs)
     PhysicalBoundaryCondition pbc = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(bc.getType());
     int max_size = 4;
     for (int i = 0; i < pbc.getNumVars(); ++i) {
-      max_size = max(max_size, pbc.getVarName(i).size());
+      max_size = std::max(max_size, static_cast<int>(pbc.getVarName(i).size()));
     }
     info << "string " + QString("name").leftJustified(max_size) << " = " << bc.getName() << ";\n";
     info << "string " + QString("type").leftJustified(max_size) << " = " << pbc.getType() << ";\n";

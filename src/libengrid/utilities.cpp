@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -264,7 +265,7 @@ int getSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid, vtkIdType a_id_nod
     EG_BUG;
     return(-1);
   }
-  qSort(edge.begin(), edge.end());
+  std::sort(edge.begin(), edge.end());
   if (edge[0] == 0 && edge[1] == num_pts - 1) return(num_pts - 1);
   else return(edge[0]);
 }

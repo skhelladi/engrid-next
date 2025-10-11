@@ -22,6 +22,7 @@
 #include <vtkCellLocator.h>
 #include <vtkSignedCharArray.h>
 #include <vtkGenericCell.h>
+#include <algorithm>
 
 #include "guimainwindow.h"
 #include "localnodegraphinterface.h"
@@ -173,7 +174,7 @@ void LaplaceSmoother::operate()
       bcs.insert(cell_code->GetValue(m_Part.n2cLG(i_nodes, j)));
     }
     m_NodeToBc[i_nodes].resize(bcs.size());
-    qCopy(bcs.begin(), bcs.end(), m_NodeToBc[i_nodes].begin());
+    std::copy(bcs.begin(), bcs.end(), m_NodeToBc[i_nodes].begin());
   }
 
   QVector<vec3_t> x_new(nodes.size());

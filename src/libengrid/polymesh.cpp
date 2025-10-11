@@ -27,6 +27,7 @@
 #include <vtkXMLPolyDataWriter.h>
 #include <vtkTriangleFilter.h>
 #include <vtkCurvatures.h>
+#include <algorithm>
 
 // ==========
 //   face_t
@@ -49,7 +50,7 @@ PolyMesh::face_t::face_t(int N, int o, int n, vec3_t rv, int b)
 PolyMesh::node_t::node_t(const QVector<vtkIdType> &ids)
 {
   id = ids;
-  qSort(id);
+  std::sort(id.begin(), id.end());
 }
 
 PolyMesh::node_t::node_t(vtkIdType id1)
@@ -63,7 +64,7 @@ PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2)
   id.resize(2);
   id[0] = id1;
   id[1] = id2;
-  qSort(id);
+  std::sort(id.begin(), id.end());
 }
 
 PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3)
@@ -72,7 +73,7 @@ PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3)
   id[0] = id1;
   id[1] = id2;
   id[2] = id3;
-  qSort(id);
+  std::sort(id.begin(), id.end());
 }
 
 PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3, vtkIdType id4)
@@ -82,7 +83,7 @@ PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3, vtkIdType 
   id[1] = id2;
   id[2] = id3;
   id[3] = id4;
-  qSort(id);
+  std::sort(id.begin(), id.end());
 }
 
 bool PolyMesh::node_t::operator<(const PolyMesh::node_t &N) const
@@ -827,7 +828,7 @@ void PolyMesh::createEdgeFace(vtkIdType id_node1, vtkIdType id_node2)
         node.id[i_pts1] = pts1[i_pts1];
       }
     }
-    qSort(node.id);
+    std::sort(node.id.begin(), node.id.end());
     nodes.append(node);
   }
   if (!loop) {
@@ -901,7 +902,7 @@ void PolyMesh::createPointFace(vtkIdType id_node, int bc)
     for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
       node.id[i_pts] = pts[i_pts];
     }
-    qSort(node.id);
+    std::sort(node.id.begin(), node.id.end());
     nodes.append(node);
     n += GeometryTools::cellNormal(m_Grid, id_face);
   }
@@ -1217,7 +1218,7 @@ void PolyMesh::collectBoundaryConditions()
     }
   }
   m_BCs.resize(bcs.size());
-  qCopy(bcs.begin(), bcs.end(), m_BCs.begin());
+  std::copy(bcs.begin(), bcs.end(), m_BCs.begin());
 }
 
 void PolyMesh::createNodesAndFaces()
@@ -1408,7 +1409,7 @@ void PolyMesh::sortFaces()
   }
   m_Faces.clear();
   for (int i = 0; i < sort_lists.size(); ++i) {
-    qSort(sort_lists[i]);
+    std::sort(sort_lists[i].begin(), sort_lists[i].end());
     m_Faces += sort_lists[i];
   }
 }

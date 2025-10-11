@@ -29,5 +29,6 @@ add_library(tet STATIC tetgen.cxx predicates.cxx)
 #We use this here to set -DTETLIBRARY for when compiling the
 #library
 set_target_properties(tet PROPERTIES "COMPILE_DEFINITIONS" TETLIBRARY)
+set_property(TARGET tet PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 install(TARGETS tetgen DESTINATION bin)

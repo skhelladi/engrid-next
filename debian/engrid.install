@@ -1,4 +1,0 @@
-src/engrid /usr/bin
-src/libengrid/libengrid.so* /usr/lib/
-debian/engrid.desktop /usr/share/applications/
-src/libengrid/resources/icons/engrid.xpm /usr/share/pixmaps/

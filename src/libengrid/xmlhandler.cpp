@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -99,7 +100,7 @@ bool XmlHandler::saveXml(QString file_name)
     QFile xml_file(file_name);
     xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream f(&xml_file);
-    f << buffer << endl;
+    f << buffer << "\n";
     xml_file.close();
     return(true);
   }
@@ -107,7 +108,7 @@ bool XmlHandler::saveXml(QString file_name)
 }
 
 QString XmlHandler::getXmlSection(QString name) {
-  QStringList tags = name.toLower().split(tr("/"), QString::SkipEmptyParts);
+  QStringList tags = name.toLower().split(tr("/"), Qt::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   bool found = true;
   QString section_text = tr("");
@@ -136,7 +137,7 @@ QString XmlHandler::getXmlSection(QString name) {
 }
 
 void XmlHandler::setXmlSection(QString name, QString contents) {
-  QStringList tags = name.toLower().split(tr("/"), QString::SkipEmptyParts);
+  QStringList tags = name.toLower().split(tr("/"), Qt::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   try {
     foreach(QString tag, tags) {

@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -147,8 +148,8 @@ int FileTemplate::exportToOpenFOAM( QString filename )
   }
   QTextStream out( &file );
   m_OutText = m_InText;
-  QRegExp regexp( "{{{.*}}}" );
-  regexp.setMinimal( true );
+  QRegularExpression regexp( "{{{.*}}}" );
+  regexp.setPatternOptions(QRegularExpression::InvertedGreedinessOption);
   for ( int i = 0; i < m_Lines.size(); i++ ) {
     int idx1 = m_OutText.indexOf( "{{{" );
     int idx2 = m_OutText.indexOf( "}}}" );

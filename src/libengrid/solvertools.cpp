@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -399,7 +400,7 @@ void SolverTools::readFromStdout_Solver()
 
 void SolverTools::startedHandler_Solver()
 {
-  qDebug() << "=== started solver-process with PID = " << m_SolverProcess->pid() << "===";
+  qDebug() << "=== started solver-process with PID = " << m_SolverProcess->processId() << "===";
   m_FullCommand_Solver = m_Program_Solver;
   foreach(QString arg, m_Arguments_Solver) {
     m_FullCommand_Solver += " " + arg;
@@ -435,7 +436,7 @@ void SolverTools::readFromStdout_Tools()
 
 void SolverTools::startedHandler_Tools()
 {
-  qDebug() << "=== started tools-process with PID = " << m_ToolsProcess->pid() << "===";
+  qDebug() << "=== started tools-process with PID = " << m_ToolsProcess->processId() << "===";
   m_FullCommand_Tools = m_Program_Tools;
   foreach(QString arg, m_Arguments_Tools) {
     m_FullCommand_Tools += " " + arg;

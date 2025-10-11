@@ -1,4 +1,5 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include <algorithm>
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
@@ -89,8 +90,8 @@ int OctreeCell::getEdgeNode(Octree* octree, int n1, int n2, bool this_cell_only)
       }
     }
   } else if (!this_cell_only) {
-    QSet<int> cells1 = QSet<int>::fromList(octree->m_Node2Cell[m_Node[n1]]);
-    QSet<int> cells2 = QSet<int>::fromList(octree->m_Node2Cell[m_Node[n2]]);
+    QSet<int> cells1(octree->m_Node2Cell[m_Node[n1]].begin(), octree->m_Node2Cell[m_Node[n1]].end());
+    QSet<int> cells2(octree->m_Node2Cell[m_Node[n2]].begin(), octree->m_Node2Cell[m_Node[n2]].end());
     QSet<int> cells = cells1.intersect(cells2);
     foreach (int i_cell, cells) {
       if (octree->m_Cells[i_cell].m_Level == m_Level) {

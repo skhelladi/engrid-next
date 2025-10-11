@@ -26,6 +26,7 @@
 #include "pointfinder.h"
 
 #include <QTime>
+#include <algorithm>
 
 GridSmoother::GridSmoother()
 {
@@ -55,7 +56,7 @@ void GridSmoother::markNodes()
   m_NodeMarked.fill(false,m_Grid->GetNumberOfPoints());
   QVector<bool> new_mark(m_Grid->GetNumberOfPoints());
   for (int i_iterations = 0; i_iterations < 1; ++i_iterations) {
-    qCopy(m_NodeMarked.begin(),m_NodeMarked.end(),new_mark.begin());
+    std::copy(m_NodeMarked.begin(),m_NodeMarked.end(),new_mark.begin());
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bool mark_cell = false;
       EG_GET_CELL(id_cell, m_Grid);
@@ -74,7 +75,7 @@ void GridSmoother::markNodes()
         }
       }
     }
-    qCopy(new_mark.begin(),new_mark.end(),m_NodeMarked.begin());
+    std::copy(new_mark.begin(),new_mark.end(),m_NodeMarked.begin());
   }
   QSet<int> free_bcs = m_BoundaryCodes + m_LayerAdjacentBoundaryCodes;
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
@@ -443,7 +444,7 @@ void GridSmoother::relaxNormalVectors()
 void GridSmoother::getRules()
 {
   QString rules_text = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules");
-  QStringList rules = rules_text.split(";", QString::SkipEmptyParts);
+  QStringList rules = rules_text.split(";", Qt::SkipEmptyParts);
   foreach (QString rule, rules) {
     rule = rule.trimmed();
     QStringList parts = rule.split("=");

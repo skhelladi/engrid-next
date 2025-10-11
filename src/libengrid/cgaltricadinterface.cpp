@@ -22,6 +22,9 @@
 #include "cgaltricadinterface.h"
 #include "meshpartition.h"
 
+#include <algorithm> // For std::copy
+#include <iterator>  // For std::distance
+
 #include <CGAL/exceptions.h>
 
 CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
@@ -93,7 +96,7 @@ CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
       }
     }
     m_Segments.resize(segs.size());
-    qCopy(segs.begin(), segs.end(), m_Segments.begin());
+    std::copy(segs.begin(), segs.end(), m_Segments.begin());
     m_SegmentTree.rebuild(m_Segments.begin(), m_Segments.end());
     m_SegmentTree.accelerate_distance_queries();
   }
@@ -185,8 +188,7 @@ vec3_t CgalTriCadInterface::snap(vec3_t x, bool)
     Point p(x[0], x[1], x[2]);
     TrianglePointAndPrimitiveId result = m_TriangleTree.closest_point_and_primitive(p);
     Point cp = result.first;
-    Triangle* T = result.second;
-    int id = (T - m_Triangles.begin());
+    int id = std::distance(m_Triangles.begin(), result.second);
     vtkIdType id_face = m_Tri2Grid[id];
     m_LastNormal = GeometryTools::cellNormal(m_BGrid, id_face);
     m_LastNormal.normalise();
@@ -210,7 +212,7 @@ vec3_t CgalTriCadInterface::snapWithNormal(vec3_t x, vec3_t n_surf, bool correct
       std::list<Intersection> intersections;
       m_TriangleTree.all_intersections(ray, std::back_inserter(intersections));
       for (std::list<Intersection>::iterator i = intersections.begin(); i != intersections.end(); ++i) {
-        int id = (i->second - m_Triangles.begin());
+        int id = std::distance(m_Triangles.begin(), i->second);
         vtkIdType id_face = m_Tri2Grid[id];
         vec3_t n = GeometryTools::cellNormal(m_BGrid, id_face);
         n.normalise();
@@ -248,7 +250,7 @@ vec3_t CgalTriCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_c
       std::list<Intersection> intersections;
       m_TriangleTree.all_intersections(ray, std::back_inserter(intersections));
       for (std::list<Intersection>::iterator i = intersections.begin(); i != intersections.end(); ++i) {
-        int id = (i->second - m_Triangles.begin());
+        int id = std::distance(m_Triangles.begin(), i->second);
         vtkIdType id_face = m_Tri2Grid[id];
         vec3_t n = GeometryTools::cellNormal(m_BGrid, id_face);
         n.normalise();
@@ -313,7 +315,7 @@ void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair
     intersections.resize(i_intersections);
     i_intersections = 0;
     for (std::list<Intersection>::iterator i = inters.begin(); i != inters.end(); ++i) {
-      int id = (i->second - m_Triangles.begin());
+      int id = std::distance(m_Triangles.begin(), i->second);
       if (i->first.type() == typeid(Point)) {
         intersections[i_intersections].second = m_Tri2Grid[id];
         Point p = boost::get<Point>(i->first);

@@ -180,7 +180,7 @@ double getNumber(QString text)
     stringstream myStream(input);
     if (myStream >> myNumber)
       break;
-    qDebug() << "Invalid number, please try again" << endl;
+    qDebug() << "Invalid number, please try again" << Qt::endl;
   }
   return myNumber;
 }

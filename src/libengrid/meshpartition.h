@@ -22,6 +22,8 @@
 #ifndef MESHPARTITION_H
 #define MESHPARTITION_H
 
+#include <algorithm> // For std::copy
+
 class MeshPartition;
 
 #include "egvtkobject.h"
@@ -407,7 +409,7 @@ template <class C>
 inline void MeshPartition::setCells(const C& cls)
 {
   m_Cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), m_Cells.begin());
+  std::copy(cls.begin(), cls.end(), m_Cells.begin());
   ++m_CellsStamp;
 }
 
@@ -797,7 +799,7 @@ void MeshPartition::getCommonBcs(const C &nodes, QVector<int> &common_bcs)
     }
   }
   common_bcs.resize(bcs.size());
-  qCopy(bcs.begin(), bcs.end(), common_bcs.begin());
+  std::copy(bcs.begin(), bcs.end(), common_bcs.begin());
 }
 
 template <typename C>
