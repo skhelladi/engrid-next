@@ -20,11 +20,20 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+# Minimum CMake version
 cmake_minimum_required(VERSION 3.16)
 
-# Hint for custom Qt6 location
-set(QT_DIR "/opt/Qt/6.9.1/gcc_64")
-list(APPEND CMAKE_PREFIX_PATH ${QT_DIR})
+# User-configurable paths (relative paths recommended)
+# Set these via CMake cache or edit them here. Defaults point to common
+# locations used in this workspace.
+set(QT_ROOT "$ENV{HOME}/Qt/6.10.0/macos" CACHE PATH "Path to Qt installation (prefix)")
+set(VTK_ROOT "${CMAKE_SOURCE_DIR}/../3rdparty/vtk-9.5.2" CACHE PATH "Path to VTK installation (prefix)")
+
+# Add Qt/VTK prefixes to CMake search path
+list(APPEND CMAKE_PREFIX_PATH ${QT_ROOT} ${VTK_ROOT})
+
+# Allow explicit VTK CMake directory override; default uses typical layout
+set(VTK_DIR "${VTK_ROOT}/lib/cmake/vtk-9.5" CACHE PATH "VTK CMake config directory (lib/cmake/vtk-9.5)")
 
 # limit configuration types (must be done before project() statement)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
@@ -49,11 +58,12 @@ set(ENGRID_MINOR_VERSION 0)
 set(ENGRID_PATCH_VERSION 0)
 set(ENGRID_VERSION ${ENGRID_MAJOR_VERSION}.${ENGRID_MINOR_VERSION}.${ENGRID_PATCH_VERSION})
 
-exec_program(
-    "git"
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ARGS "describe"
-    OUTPUT_VARIABLE GIT_SHA1)
+execute_process(
+    COMMAND git describe
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_SHA1
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
 string(REGEX MATCH "-g.*$" GIT_SHA1 "${GIT_SHA1}")
 string(REGEX REPLACE "[-g]" "" GIT_SHA1 "${GIT_SHA1}" )
 add_definitions( -DGIT_SHA1="${GIT_SHA1}" )
@@ -71,11 +81,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # --- VTK Configuration ---
-# Set VTK_DIR to point directly to the custom VTK build configuration
-set(VTK_DIR "${CMAKE_SOURCE_DIR}/../3rdparty/vtk-9.5-qt6/lib/cmake/vtk-9.5")
-
+# `VTK_DIR` is provided above (cache variable) and points to the VTK CMake
+# configuration directory (defaults to ${VTK_ROOT}/lib/cmake/vtk-9.5).
 find_package(VTK COMPONENTS
   RenderingCore
+  RenderingFreeType
   ChartsCore
   CommonExecutionModel
   CommonTransforms
@@ -84,12 +94,17 @@ find_package(VTK COMPONENTS
   FiltersGeneral
   FiltersGeometry
   FiltersSources
+  FiltersModeling
   IOCore
   IOGeometry
   IOLegacy
   IOPLY
   IOXML
   GUISupportQt
+  RenderingAnnotation
+  InteractionStyle
+  RenderingOpenGL2
+  InteractionWidgets
   REQUIRED)
 
 if("${VTK_VERSION}" VERSION_LESS 9.5)
@@ -103,7 +118,22 @@ if(NOT INITIAL_CONFIG)
 endif()
 
 find_package(CGAL REQUIRED)
-include(${CGAL_USE_FILE})
+if(CGAL_FOUND)
+  include_directories(${CGAL_INCLUDE_DIRS})
+  link_libraries(${CGAL_LIBRARIES})
+endif()
+
+option(USE_NETGEN "Enable Netgen support for tetrahedral meshing" ON)
+if(USE_NETGEN)
+  find_package(NETGEN)
+  if(NETGEN_FOUND)
+    include_directories(${NETGEN_INCLUDE_DIRS})
+    add_definitions(-DUSE_NETGEN)
+  else()
+    message(WARNING "Netgen not found. Disabling Netgen support.")
+    set(USE_NETGEN OFF)
+  endif()
+endif()
 
 # --- Qt6 ---
 find_package(Qt6 COMPONENTS Core Gui Widgets Network Xml REQUIRED)
@@ -151,8 +181,31 @@ target_link_libraries(engrid PRIVATE
     Qt6::Widgets
     Qt6::Network
     Qt6::Xml
-    ${VTK_LIBRARIES}
+  VTK::RenderingCore
+  VTK::ChartsCore
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::CommonColor
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::FiltersModeling
+  VTK::IOCore
+  VTK::IOGeometry
+  VTK::IOLegacy
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::GUISupportQt
+  VTK::RenderingAnnotation
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::InteractionWidgets
 )
+
+if(USE_NETGEN AND NETGEN_FOUND)
+    target_link_libraries(engrid PRIVATE ${NETGEN_LIBRARIES})
+endif()
 
 install(TARGETS engrid DESTINATION bin)
 

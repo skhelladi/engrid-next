@@ -115,7 +115,8 @@ void GuiMainWindow::setupGuiMainWindow()
   ui.setupUi(this);
 #ifdef __APPLE__
   QMenuBar *menubar = ui.menubar;
-  menubar->setNativeMenuBar(true);
+  // Use in-window menu bar instead of native macOS menu bar to avoid bundle identifier issues
+  menubar->setNativeMenuBar(false);
 #endif
   THIS = this;
 
@@ -1137,6 +1138,27 @@ void GuiMainWindow::openGrid(QString file_name)
   vtu->SetFileName(qPrintable(file_name));
   vtu->Update();
   m_Grid->DeepCopy(vtu->GetOutput());
+
+  // Some enGrid/VTU files can contain only volume cells (no explicit surface triangles/quads/polygons).
+  // In that case, the default "surface" display shows nothing unless the user enables volume display.
+  // Make the initial view more robust by auto-enabling volume display when no surface cells exist.
+  vtkIdType n_surface_cells = 0;
+  if (m_Grid->GetNumberOfCells() > 0) {
+    for (vtkIdType i = 0; i < m_Grid->GetNumberOfCells(); ++i) {
+      const int ct = m_Grid->GetCellType(i);
+      if ((ct == VTK_TRIANGLE) || (ct == VTK_QUAD) || (ct == VTK_POLYGON)) {
+        ++n_surface_cells;
+      }
+    }
+    if (n_surface_cells == 0) {
+      ui.checkBoxVolume->setChecked(true);
+      cout << "No surface cells detected; enabling volume display." << endl;
+    }
+  }
+  cout << "Loaded grid: "
+       << m_Grid->GetNumberOfPoints() << " points, "
+       << m_Grid->GetNumberOfCells() << " cells (surface cells="
+       << n_surface_cells << ")" << endl;
   if (m_Grid->GetPointData()->GetArray("node_meshdensity_current")) {
     m_Grid->GetPointData()->RemoveArray("node_meshdensity_current");
   }

@@ -36,7 +36,7 @@ Download and build VTK 9.5 with Qt6 support:
 ```bash
 git clone https://gitlab.kitware.com/vtk/vtk.git
 cd vtk
-git checkout v9.5.0
+git checkout v9.5.2
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DVTK_GROUP_ENABLE_Qt=YES \
@@ -46,6 +46,58 @@ cmake -DCMAKE_BUILD_TYPE=Release \
 make -j$(nproc)
 make install
 ```
+
+### Optional: Building Netgen for tetrahedral meshing
+
+If you want tetrahedral meshing support, you can build Netgen:
+
+```bash
+git clone https://github.com/NGSolve/netgen.git
+cd netgen
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_GUI=OFF \
+      -DUSE_PYTHON=OFF \
+      -DUSE_OCC=OFF \
+      -DCMAKE_INSTALL_PREFIX=/path/to/netgen-install \
+      ..
+make -j$(nproc)
+make install
+```
+
+### Optional: Building Netgen for tetrahedral meshing
+
+If you want tetrahedral meshing support, you can build Netgen:
+
+```bash
+git clone https://github.com/NGSolve/netgen.git
+cd netgen
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_GUI=OFF \
+      -DUSE_PYTHON=OFF \
+      -DUSE_OCC=OFF \
+      -DCMAKE_INSTALL_PREFIX=/path/to/netgen-install \
+      ..
+make -j$(nproc)
+make install
+```
+
+Then configure enGrid with Netgen support:
+
+```bash
+cmake -DUSE_NETGEN=ON \
+      -DCMAKE_PREFIX_PATH="/path/to/qt6;/path/to/vtk-install;/path/to/netgen-install" \
+      ../src
+```
+
+Alternatively, use the provided `install_pkg.sh` script which installs all dependencies in the `3rdparty/` directory:
+
+```bash
+./scripts/install_pkg.sh --qt-dir /path/to/Qt6
+```
+
+This will install VTK, Netgen, and other dependencies in `3rdparty/` and set up the environment for building enGrid.
 
 ### Configuring and Compiling enGrid
 
@@ -58,6 +110,15 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       ../src
 make -j$(nproc)
 make install
+```
+
+If you used `install_pkg.sh`, the dependencies are in `3rdparty/` and you can build with:
+
+```bash
+mkdir build && cd build
+export CMAKE_PREFIX_PATH="$(pwd)/../3rdparty/netgen:$(pwd)/../3rdparty/vtk-9.5.2:$CMAKE_PREFIX_PATH"
+cmake -DUSE_NETGEN=ON ../src
+make -j$(nproc)
 ```
 
 Or use ccmake for interactive configuration:

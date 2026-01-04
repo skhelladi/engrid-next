@@ -42,6 +42,7 @@ Makefile.*engrid*
 netgen_svn
 third_party
 3rdparty
+!3rdparty/README.md
 third_party64
 tmp.txt
 *.kdevelop.pcs
@@ -93,5 +94,6 @@ docs
 # CMake
 *CMakeFiles*
 *.cmake
+
 
 

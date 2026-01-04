@@ -21,10 +21,13 @@
 #include <QtCore>
 #include <QtGui>
 #include <QApplication>
+#include <QSurfaceFormat>
 #include <QFile>
 #include <QTextStream>
 #include <QDate>
 #include <qglobal.h>
+
+#include <QVTKOpenGLNativeWidget.h>
 
 #include "guimainwindow.h"
 #include "filetemplate.h"
@@ -194,6 +197,10 @@ int main( int argc, char ** argv )
   qInstallMessageHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   int app_result=0;
+
+  // QVTKOpenGLNativeWidget requires a compatible default OpenGL format.
+  // If not set, VTK's OpenGL function pointers can remain null and crash during the first paint.
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
 
   ///\todo use gnu getopt ? Check windows/mac compatibility.
   if (argc > 1) {

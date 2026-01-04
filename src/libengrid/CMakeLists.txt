@@ -398,8 +398,32 @@ target_link_libraries(libengrid PRIVATE
     Qt6::Widgets
     Qt6::Network
     Qt6::Xml
-    ${VTK_LIBRARIES}
+  VTK::RenderingCore
+  VTK::RenderingFreeType
+  VTK::ChartsCore
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::CommonColor
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::FiltersModeling
+  VTK::IOCore
+  VTK::IOGeometry
+  VTK::IOLegacy
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::GUISupportQt
+  VTK::RenderingAnnotation
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::InteractionWidgets
 )
+
+if(USE_NETGEN AND NETGEN_FOUND)
+    target_link_libraries(libengrid PRIVATE ${NETGEN_LIBRARIES})
+endif()
 
 INSTALL(TARGETS libengrid LIBRARY DESTINATION lib${LIB_SUFFIX})
 INSTALL(FILES ${libengrid_HEADERS} DESTINATION include/engrid)
